@@ -614,25 +614,26 @@ void UpdateSourceCodeView()
 
                     // attempt to load the source file
                     LoadSourceFile( sourcedata->source_name, linedata->source_line, sourcedata->source_id );
+					if ( filename.back() != 'h' ) {
 
-                    if ( linedata->line_type == CC65_LINE_MACRO &&
-                        int ( linedata->count ) > deepest_macro_count )
-                    {
-                        deepest_macro_count = linedata->count;
-                        deepest_macro_line  = active_lines.size() - 1;
-                    }
-                    // If the line data is from C source, it always takes
-                    // priority.
-                    else if ( linedata->line_type == CC65_LINE_EXT )
-                    {
-                        deepest_macro_count = INT_MAX;
-                        deepest_macro_line = active_lines.size() - 1;
-                    }
+						if ( linedata->line_type == CC65_LINE_MACRO && int ( linedata->count ) > deepest_macro_count )
+						{
+							deepest_macro_count = linedata->count;
+							deepest_macro_line  = active_lines.size() - 1;
+						}
+						// If the line data is from C source, it always takes
+						// priority.
+						else if ( linedata->line_type == CC65_LINE_EXT )
+						{
+							deepest_macro_count = INT_MAX;
+							deepest_macro_line = active_lines.size() - 1;
+						}
 
-                    if ( linedata->line_type == CC65_LINE_ASM || linedata->line_type == CC65_LINE_EXT )
-                    {
-                        top_level_line = active_lines.size() - 1;
-                    }
+						if ( linedata->line_type == CC65_LINE_ASM || linedata->line_type == CC65_LINE_EXT )
+						{
+							top_level_line = active_lines.size() - 1;
+						}
+					}
                 }
 
                 cc65_free_sourceinfo( dbginfo, sourceinfo );
@@ -679,6 +680,7 @@ void UpdateSourceCodeView()
 
         {
             int selindex = 0;
+			CheckDlgButton(Debugger::CPUWnd, IDC_EXPAND_MACROS, expand_macros ? BST_CHECKED : BST_UNCHECKED);
             if ( expand_macros )
             {
                 if ( deepest_macro_count != -1 )
@@ -1393,7 +1395,7 @@ void Init()
               DEFAULT_PITCH | FF_SWISS, _T("Consolas"));
     }
     // Uncomment to use Consolas instead of the default font.
-    //SendMessage(GetDlgItem(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST), WM_SETFONT, WPARAM (srcviewfont), TRUE);
+    SendMessage(GetDlgItem(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST), WM_SETFONT, WPARAM (srcviewfont), TRUE);
 
     int watch_tabs[1] = { 90 };
     SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_WATCH_LIST, LB_SETTABSTOPS, 1, (LPARAM)&watch_tabs);
@@ -1436,7 +1438,8 @@ void SourceFileSelChanged()
         current_srcfile = srcfilestransi;
     }
 
-    // set the selection in the sourcecode view (and scroll)
+	// set the selection in the sourcecode view (and scroll)
+
     const int num_lines_on_top = 8;
     int topline = al.line - num_lines_on_top - 1;
     if(topline < 0) topline = 0;

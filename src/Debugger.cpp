@@ -656,6 +656,11 @@ bool	UpdateCPU (void)
 		sinfo.nMin = 0;
 		sinfo.nMax = 0xFFF;
 		SetScrollInfo(GetDlgItem(CPUWnd, IDC_DEBUG_MEM_SCROLL), SB_CTL, &sinfo, TRUE);
+
+		// Add 0-F header:
+		_stprintf(tps, _T("     \t00\t01\t02\t03\t04\t05\t06\t07\t08\t09\t0A\t0B\t0C\t0D\t0E\t0F"));
+		SendDlgItemMessage(CPUWnd, IDC_DEBUG_MEM_LIST, LB_ADDSTRING, 0, (LPARAM)tps);
+
 		for (i = 0; i < DEBUG_MEMLINES; i++)
 		{
 			// past the end?
@@ -691,6 +696,11 @@ bool	UpdateCPU (void)
 		sinfo.nMin = 0;
 		sinfo.nMax = 0x3FF;
 		SetScrollInfo(GetDlgItem(CPUWnd, IDC_DEBUG_MEM_SCROLL), SB_CTL, &sinfo, TRUE);
+
+		// Add 0-F header:
+		_stprintf(tps, _T("     \t00\t01\t02\t03\t04\t05\t06\t07\t08\t09\t0A\t0B\t0C\t0D\t0E\t0F"));
+		SendDlgItemMessage(CPUWnd, IDC_DEBUG_MEM_LIST, LB_ADDSTRING, 0, (LPARAM)tps);
+
 		for (i = 0; i < DEBUG_MEMLINES; i++)
 		{
 			// past the end?
@@ -726,6 +736,11 @@ bool	UpdateCPU (void)
 		sinfo.nMin = 0;
 		sinfo.nMax = 0xF;
 		SetScrollInfo(GetDlgItem(CPUWnd, IDC_DEBUG_MEM_SCROLL), SB_CTL, &sinfo, TRUE);
+
+		// Add 0-F header:
+		_stprintf(tps, _T("     \t00\t01\t02\t03\t04\t05\t06\t07\t08\t09\t0A\t0B\t0C\t0D\t0E\t0F"));
+		SendDlgItemMessage(CPUWnd, IDC_DEBUG_MEM_LIST, LB_ADDSTRING, 0, (LPARAM)tps);
+
 		for (i = 0; i < DEBUG_MEMLINES; i++)
 		{
 			// past the end?
@@ -760,6 +775,11 @@ bool	UpdateCPU (void)
 		sinfo.nMin = 0;
 		sinfo.nMax = 0;
 		SetScrollInfo(GetDlgItem(CPUWnd, IDC_DEBUG_MEM_SCROLL), SB_CTL, &sinfo, TRUE);
+
+		// Add 0-F header:
+		_stprintf(tps, _T("     \t00\t01\t02\t03\t04\t05\t06\t07\t08\t09\t0A\t0B\t0C\t0D\t0E\t0F"));
+		SendDlgItemMessage(CPUWnd, IDC_DEBUG_MEM_LIST, LB_ADDSTRING, 0, (LPARAM)tps);
+
 		for (i = 0; i < DEBUG_MEMLINES; i++)
 		{
 			// past the end?
@@ -1934,7 +1954,7 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return TRUE;
 		case IDC_DEBUG_CONT_SEEKTO:
 			GetDlgItemText(hwndDlg, IDC_DEBUG_CONT_SEEKADDR, tpc, 5);
-			TraceOffset = _tcstol(tpc, NULL, 16);
+			MemOffset = _tcstol(tpc, NULL, 16) >> 4 ;
 			UpdateCPU();
 			return TRUE;
 		case IDC_DEBUG_CONT_SEEKSEL:
