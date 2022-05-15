@@ -175,7 +175,7 @@ void	OpenFile (TCHAR *filename)
 	EnableMenuItem(hMenu, ID_FILE_CLOSE, MF_ENABLED);
 	EnableMenuItem(hMenu, ID_CPU_RUN, MF_ENABLED);
 	EnableMenuItem(hMenu, ID_CPU_STEP, MF_ENABLED);
-	EnableMenuItem(hMenu, ID_CPU_STOP, MF_ENABLED);
+	EnableMenuItem(hMenu, ID_CPU_STOP_OR_STEP, MF_ENABLED);
 	EnableMenuItem(hMenu, ID_CPU_SOFTRESET, MF_ENABLED);
 	EnableMenuItem(hMenu, ID_CPU_HARDRESET, MF_ENABLED);
 
@@ -368,7 +368,7 @@ void	CloseFile (void)
 	EnableMenuItem(hMenu, ID_FILE_CLOSE, MF_GRAYED);
 	EnableMenuItem(hMenu, ID_CPU_RUN, MF_GRAYED);
 	EnableMenuItem(hMenu, ID_CPU_STEP, MF_GRAYED);
-	EnableMenuItem(hMenu, ID_CPU_STOP, MF_GRAYED);
+	EnableMenuItem(hMenu, ID_CPU_STOP_OR_STEP, MF_GRAYED);
 	EnableMenuItem(hMenu, ID_CPU_SOFTRESET, MF_GRAYED);
 	EnableMenuItem(hMenu, ID_CPU_HARDRESET, MF_GRAYED);
 

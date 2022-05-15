@@ -145,13 +145,21 @@ int APIENTRY	_tWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 		// ProcessMessages() doesn't have this because it's only used in 2 places which don't matter
 		// (namely, controller configuration and the brief delay when stopping emulation)
 		HWND focus = GetActiveWindow();
+		
+		if (!MaskKeyboard)
+			if (TranslateAccelerator(hMainWnd, hAccelTable, &msg))
+				continue;
+
 		if ((focus != NULL) && (focus != hMainWnd) && IsDialogMessage(focus, &msg))
 			continue;
-		if (MaskKeyboard || !TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) 
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+	
+
+
+
 	}
 	timeEndPeriod(1);
 
@@ -334,8 +342,15 @@ LRESULT CALLBACK	WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			NES::Stop();		// need to stop first
 			NES::Start(TRUE);	// so the 'start' makes it through
 			break;
-		case ID_CPU_STOP:
-			NES::Stop();
+		case ID_CPU_STOP_OR_STEP:
+			if (running)
+			{
+				NES::Stop();	
+			}
+			else {
+				NES::Stop();		// need to stop first
+				NES::Start(TRUE);	// so the 'start' makes it through
+			}
 			break;
 		case ID_CPU_SOFTRESET:
 			NES::Stop();

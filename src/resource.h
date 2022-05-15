@@ -250,6 +250,7 @@
 #define IDC_DEBUG_TRACE_LIST            1215
 #define IDC_DEBUG_TRACE_SCROLL          1216
 #define IDC_DEBUG_PPU_NAMETABLE         1217
+#define IDC_DEBUG_CONT_DUMPCPU2         1217
 #define IDC_DEBUG_PPU_NT0               1218
 #define IDC_DEBUG_PPU_NT1               1219
 #define IDC_DEBUG_PPU_NT2               1220
@@ -333,7 +334,7 @@
 #define ID_FILE_EXIT                    32772
 #define ID_CPU_RUN                      32773
 #define ID_CPU_STEP                     32774
-#define ID_CPU_STOP                     32775
+#define ID_CPU_STOP_OR_STEP             32775
 #define ID_CPU_SOFTRESET                32776
 #define ID_CPU_HARDRESET                32777
 #define ID_CPU_SAVESTATE                32778
@@ -391,16 +392,15 @@
 #define ID_DEBUGEXT_PAL_ASPECT_RATIO    35003
 #define ID_DEBUGEXT_MASK_SAFE_AREA      35004
 #define ID_DEBUGEXT_NTSC_FILTER         35005
-
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        152
-#define _APS_NEXT_COMMAND_VALUE         32827
+#define _APS_NEXT_RESOURCE_VALUE        154
+#define _APS_NEXT_COMMAND_VALUE         32832
 #define _APS_NEXT_CONTROL_VALUE         1288
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
