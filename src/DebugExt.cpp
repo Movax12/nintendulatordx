@@ -3062,11 +3062,11 @@ int stop( lua_State* L )
         // Stop the emulator.
         NES::DoStop = TRUE;
         // Wait for the emulator to be actually stopped before continuing.
-        while ( NES::Running )
-        {
-            Sleep( 1 );
-        }
-
+      //  while ( NES::Running )
+      //  {
+      //      Sleep( 1 );
+      //  }
+	  //
         // Return true, i.e. emulator WAS running before.
         lua_pushboolean( L, 1 );
     }

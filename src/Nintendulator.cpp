@@ -156,9 +156,12 @@ int APIENTRY	_tWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+<<<<<<< HEAD
+=======
 	
 
 
+>>>>>>> cc13194f4db811dfdf5752c90ed433669b04c596
 
 	}
 	timeEndPeriod(1);
@@ -334,7 +337,6 @@ LRESULT CALLBACK	WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_FILE_BROWSESAVES:
 			BrowseFolder(DataPath);
 			break;
-
 		case ID_CPU_RUN:
 			NES::Start(FALSE);
 			break;

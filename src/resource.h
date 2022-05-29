@@ -321,6 +321,7 @@
 #define IDC_DEBUG_BANK_PPU3C            1285
 #define IDC_PAL_PC10_ALT                1286
 #define IDC_PAL_PC10_COMPAT             1287
+#define IDC_ANIMATE1                    1288
 #define IDC_DEBUG_SOURCECODE_LIST       5000
 #define IDC_DEBUG_SOURCEFILE            5001
 #define IDC_DEBUG_WATCH_LIST            5002
@@ -401,7 +402,11 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        154
 #define _APS_NEXT_COMMAND_VALUE         32832
+<<<<<<< HEAD
+#define _APS_NEXT_CONTROL_VALUE         1289
+=======
 #define _APS_NEXT_CONTROL_VALUE         1288
+>>>>>>> cc13194f4db811dfdf5752c90ed433669b04c596
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif

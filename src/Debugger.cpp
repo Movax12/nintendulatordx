@@ -1678,17 +1678,18 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg)
 	{
+
 	case WM_INITDIALOG:
 		if (TraceOffset == -1)
 		{
 			SetDlgItemText(hwndDlg, IDC_DEBUG_CONT_SEEKADDR, _T(""));
-			CheckRadioButton(hwndDlg, IDC_DEBUG_CONT_SEEKPC, IDC_DEBUG_CONT_SEEKTO, IDC_DEBUG_CONT_SEEKPC);
+			//CheckRadioButton(hwndDlg, IDC_DEBUG_CONT_SEEKPC, IDC_DEBUG_CONT_SEEKTO, IDC_DEBUG_CONT_SEEKPC);
 		}
 		else
 		{
 			_stprintf(tpc, _T("%04X"), TraceOffset);
 			SetDlgItemText(hwndDlg, IDC_DEBUG_CONT_SEEKADDR, tpc);
-			CheckRadioButton(hwndDlg, IDC_DEBUG_CONT_SEEKPC, IDC_DEBUG_CONT_SEEKTO, IDC_DEBUG_CONT_SEEKTO);
+			//CheckRadioButton(hwndDlg, IDC_DEBUG_CONT_SEEKPC, IDC_DEBUG_CONT_SEEKTO, IDC_DEBUG_CONT_SEEKTO);
 		}
 		SendDlgItemMessage(hwndDlg, IDC_DEBUG_TRACE_LIST, LB_SETTABSTOPS, 3, (LPARAM)&trace_tabs);
 
@@ -1972,10 +1973,10 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case IDC_DEBUG_CONT_SEEKADDR:
 			if (TraceOffset != -1)
 			{
-				GetDlgItemText(hwndDlg, IDC_DEBUG_CONT_SEEKADDR, tpc, 5);
-				TraceOffset = _tcstol(tpc, NULL, 16);
-				UpdateCPU();
-				return TRUE;
+			//	GetDlgItemText(hwndDlg, IDC_DEBUG_CONT_SEEKADDR, tpc, 5);
+			//	TraceOffset = _tcstol(tpc, NULL, 16);
+			//	UpdateCPU();
+			//	return TRUE;
 			}
 			break;
 		case IDC_DEBUG_CONT_DUMPCPU:
@@ -2087,9 +2088,8 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				TraceOffset = sinfo.nMin;
 			if (TraceOffset > sinfo.nMax)
 				TraceOffset = sinfo.nMax;
-			_stprintf(tpc, _T("%04X"), TraceOffset);
-			SetDlgItemText(hwndDlg, IDC_DEBUG_CONT_SEEKADDR, tpc);
-			CheckRadioButton(hwndDlg, IDC_DEBUG_CONT_SEEKPC, IDC_DEBUG_CONT_SEEKTO, IDC_DEBUG_CONT_SEEKTO);
+
+		//	CheckRadioButton(hwndDlg, IDC_DEBUG_CONT_SEEKPC, IDC_DEBUG_CONT_SEEKTO, IDC_DEBUG_CONT_SEEKTO);
 			UpdateCPU();
 			return TRUE;
 		}
@@ -2122,6 +2122,8 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				MemOffset = sinfo.nMin;
 			if (MemOffset > sinfo.nMax)
 				MemOffset = sinfo.nMax;
+		//	_stprintf(tpc, _T("%04X"), MemOffset);
+		//	SetDlgItemText(hwndDlg, IDC_DEBUG_CONT_SEEKADDR, tpc);
 			UpdateCPU();
 			return TRUE;
 		}
