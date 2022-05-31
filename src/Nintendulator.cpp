@@ -156,12 +156,6 @@ int APIENTRY	_tWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-<<<<<<< HEAD
-=======
-	
-
-
->>>>>>> cc13194f4db811dfdf5752c90ed433669b04c596
 
 	}
 	timeEndPeriod(1);

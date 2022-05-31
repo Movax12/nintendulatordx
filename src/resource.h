@@ -250,7 +250,6 @@
 #define IDC_DEBUG_TRACE_LIST            1215
 #define IDC_DEBUG_TRACE_SCROLL          1216
 #define IDC_DEBUG_PPU_NAMETABLE         1217
-#define IDC_DEBUG_CONT_DUMPCPU2         1217
 #define IDC_DEBUG_PPU_NT0               1218
 #define IDC_DEBUG_PPU_NT1               1219
 #define IDC_DEBUG_PPU_NT2               1220
@@ -402,11 +401,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        154
 #define _APS_NEXT_COMMAND_VALUE         32832
-<<<<<<< HEAD
 #define _APS_NEXT_CONTROL_VALUE         1289
-=======
-#define _APS_NEXT_CONTROL_VALUE         1288
->>>>>>> cc13194f4db811dfdf5752c90ed433669b04c596
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif
