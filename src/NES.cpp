@@ -1345,7 +1345,7 @@ void	LoadSettings (void)
         CheckMenuItem( hMenu, ID_DEBUGEXT_MEM_WARNINGS, MF_CHECKED );
 
 	if (dxPauseOnMemoryWarnings)
-		CheckMenuItem(hMenu, ID_DEBUGEXTENSIONS_PAUSEONMEMORYWARNINGS, MF_CHECKED);
+		CheckMenuItem(hMenu, ID_DEBUGEXT_PAUSEON_MEM_WARNINGS, MF_CHECKED);
 
     if ( DebugExt::ntscAspectRatio )
         CheckMenuItem( hMenu, ID_DEBUGEXT_NTSC_ASPECT_RATIO, MF_CHECKED );
