@@ -320,7 +320,6 @@
 #define IDC_DEBUG_BANK_PPU3C            1285
 #define IDC_PAL_PC10_ALT                1286
 #define IDC_PAL_PC10_COMPAT             1287
-#define IDC_ANIMATE1                    1288
 #define IDC_DEBUG_SOURCECODE_LIST       5000
 #define IDC_DEBUG_SOURCEFILE            5001
 #define IDC_DEBUG_WATCH_LIST            5002
@@ -386,6 +385,7 @@
 #define ID_FILE_BROWSESAVES             32824
 #define ID_CPU_BADOPS                   32825
 #define ID_PPU_MODE_DENDY               32826
+#define ID_DEBUGEXTENSIONS_PAUSEONMEMORYWARNINGS 32832
 #define ID_DEBUGEXT_RNDMEMORY           35000
 #define ID_DEBUGEXT_MEM_WARNINGS        35001
 #define ID_DEBUGEXT_NTSC_ASPECT_RATIO   35002
@@ -400,7 +400,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        154
-#define _APS_NEXT_COMMAND_VALUE         32832
+#define _APS_NEXT_COMMAND_VALUE         32833
 #define _APS_NEXT_CONTROL_VALUE         1289
 #define _APS_NEXT_SYMED_VALUE           107
 #endif

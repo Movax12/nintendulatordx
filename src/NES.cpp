@@ -1195,6 +1195,8 @@ void	SaveSettings (void)
     BOOL dxExpandMacros = DebugExt::expand_macros;
     BOOL dxRandomizeMemory = DebugExt::randomizeMemory;
     BOOL dxMemoryWarnings = DebugExt::memoryWarnings;
+	BOOL dxPauseOnMemoryWarnings = DebugExt::pauseOnMemoryWarnings;
+	
     BOOL dxNtscAspectRatio = DebugExt::ntscAspectRatio;
     BOOL dxPalAspectRatio = DebugExt::palAspectRatio;
     BOOL dxMaskSafeArea = DebugExt::maskSafeArea;
@@ -1209,6 +1211,7 @@ void	SaveSettings (void)
     RegSetValueEx(SettingsBase, _T("DxExpandMacros"), 0, REG_DWORD, (LPBYTE)&dxExpandMacros, sizeof(BOOL));
     RegSetValueEx(SettingsBase, _T("DxRandomizeMemory"), 0, REG_DWORD, (LPBYTE)&dxRandomizeMemory, sizeof(BOOL));
     RegSetValueEx(SettingsBase, _T("DxMemoryWarnings"), 0, REG_DWORD, (LPBYTE)&dxMemoryWarnings, sizeof(BOOL));
+	RegSetValueEx(SettingsBase, _T("DxPauseOnMemoryWarnings"), 0, REG_DWORD, (LPBYTE)&dxPauseOnMemoryWarnings, sizeof(BOOL));
     RegSetValueEx(SettingsBase, _T("DxNtscAspectRatio"), 0, REG_DWORD, (LPBYTE)&dxNtscAspectRatio, sizeof(BOOL));
     RegSetValueEx(SettingsBase, _T("DxPalAspectRatio"), 0, REG_DWORD, (LPBYTE)&dxPalAspectRatio, sizeof(BOOL));
     RegSetValueEx(SettingsBase, _T("DxMaskSafeArea"), 0, REG_DWORD, (LPBYTE)&dxMaskSafeArea, sizeof(BOOL));
@@ -1256,6 +1259,7 @@ void	LoadSettings (void)
     BOOL dxExpandMacros = TRUE;
     BOOL dxRandomizeMemory = TRUE;
     BOOL dxMemoryWarnings = TRUE;
+	BOOL dxPauseOnMemoryWarnings = FALSE;
     BOOL dxNtscAspectRatio = TRUE;
     BOOL dxPalAspectRatio = FALSE;
     BOOL dxMaskSafeArea = FALSE;
@@ -1274,6 +1278,7 @@ void	LoadSettings (void)
     Size = sizeof(BOOL);	RegQueryValueEx(SettingsBase, _T("DxExpandMacros"), 0, NULL, (LPBYTE)&dxExpandMacros, &Size);
     Size = sizeof(BOOL);	RegQueryValueEx(SettingsBase, _T("DxRandomizeMemory"), 0, NULL, (LPBYTE)&dxRandomizeMemory, &Size);
     Size = sizeof(BOOL);	RegQueryValueEx(SettingsBase, _T("DxMemoryWarnings"), 0, NULL, (LPBYTE)&dxMemoryWarnings, &Size);
+	Size = sizeof(BOOL);	RegQueryValueEx(SettingsBase, _T("DxPauseOnMemoryWarnings"), 0, NULL, (LPBYTE)&dxPauseOnMemoryWarnings, &Size);
     Size = sizeof(BOOL);	RegQueryValueEx(SettingsBase, _T("DxNtscAspectRatio"), 0, NULL, (LPBYTE)&dxNtscAspectRatio, &Size);
     Size = sizeof(BOOL);	RegQueryValueEx(SettingsBase, _T("DxPalAspectRatio"), 0, NULL, (LPBYTE)&dxPalAspectRatio, &Size);
     Size = sizeof(BOOL);	RegQueryValueEx(SettingsBase, _T("DxMaskSafeArea"), 0, NULL, (LPBYTE)&dxMaskSafeArea, &Size);
@@ -1292,6 +1297,7 @@ void	LoadSettings (void)
     DebugExt::expand_macros = !!dxExpandMacros;
     DebugExt::randomizeMemory = !!dxRandomizeMemory;
     DebugExt::memoryWarnings = !!dxMemoryWarnings;
+	DebugExt::pauseOnMemoryWarnings = !!dxPauseOnMemoryWarnings;
     DebugExt::ntscAspectRatio = !!dxNtscAspectRatio;
     DebugExt::palAspectRatio = !!dxPalAspectRatio;
     DebugExt::maskSafeArea = !!dxMaskSafeArea;
@@ -1337,6 +1343,9 @@ void	LoadSettings (void)
 
     if ( dxMemoryWarnings )
         CheckMenuItem( hMenu, ID_DEBUGEXT_MEM_WARNINGS, MF_CHECKED );
+
+	if (dxPauseOnMemoryWarnings)
+		CheckMenuItem(hMenu, ID_DEBUGEXTENSIONS_PAUSEONMEMORYWARNINGS, MF_CHECKED);
 
     if ( DebugExt::ntscAspectRatio )
         CheckMenuItem( hMenu, ID_DEBUGEXT_NTSC_ASPECT_RATIO, MF_CHECKED );

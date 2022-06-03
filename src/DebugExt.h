@@ -65,6 +65,7 @@ namespace DebugExt
     extern bool expand_macros;
     extern bool randomizeMemory;
     extern bool memoryWarnings;
+	extern bool pauseOnMemoryWarnings;
     extern bool ntscAspectRatio;
     extern bool palAspectRatio;
     extern bool maskSafeArea;

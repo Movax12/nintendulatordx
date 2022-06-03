@@ -292,6 +292,7 @@ bool randomizeMemory;
 
 // Whether to give warnings when uninitialized memory is read.
 bool memoryWarnings;
+bool pauseOnMemoryWarnings;
 
 // Whether to use NTSC aspect ratio (1.143:1) for window sizing.
 bool ntscAspectRatio;
@@ -2586,8 +2587,14 @@ void MemoryReadEvent( int addr, bool isDummy )
         // If reading, but have not written, give diagnostic
         if( memory_access_info[ addr ] == MEM_NOT_WRITTEN )
         {
-            EI.DbgOut(_T("Warning: Uninitialized memory accessed: $%X (PC = $%X)"), addr, CPU::OpAddr);
             memory_access_info[ addr ] = MEM_DIAGNOSTIC_SHOWN;
+			if (pauseOnMemoryWarnings) {
+				EI.DbgOut(_T("Emulation Paused: Uninitialized memory accessed: $%X (PC = $%X)"), addr, CPU::OpAddr);
+				NES::DoStop = TRUE;
+			} else {
+				EI.DbgOut(_T("Warning: Uninitialized memory accessed: $%X (PC = $%X)"), addr, CPU::OpAddr);
+			}
+		
         }
     }
 }
@@ -3066,7 +3073,6 @@ int stop( lua_State* L )
       //  {
       //      Sleep( 1 );
       //  }
-	  //
         // Return true, i.e. emulator WAS running before.
         lua_pushboolean( L, 1 );
     }

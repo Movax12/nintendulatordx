@@ -154,17 +154,18 @@ BEGIN
             MENUITEM "&NTSC Aspect Ratio",          ID_DEBUGEXT_NTSC_ASPECT_RATIO
             MENUITEM "&PAL Aspect Ratio",           ID_DEBUGEXT_PAL_ASPECT_RATIO
             MENUITEM "Mask 90% &Safe Area",         ID_DEBUGEXT_MASK_SAFE_AREA
+            MENUITEM "Pause on Memory Warnings",    ID_DEBUGEXTENSIONS_PAUSEONMEMORYWARNINGS
         END
     END
-    MENUITEM "&Game",                       ID_GAME, GRAYED
+    MENUITEM "&Game",                       ID_GAME
     POPUP "&Misc"
     BEGIN
         MENUITEM "S&tart AVI Capture...",       ID_MISC_STARTAVICAPTURE
-        MENUITEM "St&op AVI Capture",           ID_MISC_STOPAVICAPTURE, GRAYED
+        MENUITEM "St&op AVI Capture",           ID_MISC_STOPAVICAPTURE
         MENUITEM SEPARATOR
         MENUITEM "P&lay Movie...",              ID_MISC_PLAYMOVIE
         MENUITEM "&Record Movie...",            ID_MISC_RECORDMOVIE
-        MENUITEM "Sto&p Movie",                 ID_MISC_STOPMOVIE, GRAYED
+        MENUITEM "Sto&p Movie",                 ID_MISC_STOPMOVIE
     END
     POPUP "&Help"
     BEGIN

@@ -587,6 +587,10 @@ LRESULT CALLBACK	WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DebugExt::memoryWarnings = !DebugExt::memoryWarnings;
             CheckMenuItem( hMenu, ID_DEBUGEXT_MEM_WARNINGS, DebugExt::memoryWarnings ? MF_CHECKED : MF_UNCHECKED );
             break;
+		case ID_DEBUGEXTENSIONS_PAUSEONMEMORYWARNINGS:
+			DebugExt::pauseOnMemoryWarnings = !DebugExt::pauseOnMemoryWarnings;
+			CheckMenuItem(hMenu, ID_DEBUGEXTENSIONS_PAUSEONMEMORYWARNINGS, DebugExt::pauseOnMemoryWarnings ? MF_CHECKED : MF_UNCHECKED);
+			break;
         case ID_DEBUGEXT_NTSC_ASPECT_RATIO:
             DebugExt::ntscAspectRatio = !DebugExt::ntscAspectRatio;
             DebugExt::palAspectRatio = false;
