@@ -373,6 +373,7 @@
 #define ID_SOUND_ENABLED                32812
 #define ID_INPUT_SETUP                  32813
 #define ID_DEBUG_CPU                    32814
+#define ID_DEBUG_CPU_ON                 32827
 #define ID_DEBUG_PPU                    32815
 #define ID_DEBUG_STATWND                32816
 #define ID_GAME                         32817

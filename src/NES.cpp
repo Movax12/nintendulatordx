@@ -1222,6 +1222,9 @@ void	SaveSettings (void)
 	RegSetValueEx(SettingsBase, _T("PosY")        , 0, REG_DWORD, (LPBYTE)&wRect.top       , sizeof(DWORD));
 	RegSetValueEx(SettingsBase, _T("Region")      , 0, REG_DWORD, (LPBYTE)&CurRegion       , sizeof(DWORD));
 
+	RegSetValueEx(SettingsBase, _T("CPUWndPosX"), 0, REG_DWORD, (LPBYTE)&Debugger::CPUWndPosX, sizeof(DWORD));
+	RegSetValueEx(SettingsBase, _T("CPUWndPosY"), 0, REG_DWORD, (LPBYTE)&Debugger::CPUWndPosY, sizeof(DWORD));
+
 	RegSetValueEx(SettingsBase, _T("Path_ROM"), 0, REG_SZ, (LPBYTE)Path_ROM, (DWORD)(sizeof(TCHAR) * _tcslen(Path_ROM)));
 	RegSetValueEx(SettingsBase, _T("Path_NMV"), 0, REG_SZ, (LPBYTE)Path_NMV, (DWORD)(sizeof(TCHAR) * _tcslen(Path_NMV)));
 	RegSetValueEx(SettingsBase, _T("Path_AVI"), 0, REG_SZ, (LPBYTE)Path_AVI, (DWORD)(sizeof(TCHAR) * _tcslen(Path_AVI)));
@@ -1243,6 +1246,7 @@ void	LoadSettings (void)
 	HKEY SettingsBase;
 	unsigned long Size;
 	int PosX, PosY;
+	int CPUWndPosX, CPUWndPosY;
 	Region MyRegion = REGION_NTSC;
 
 	// set default window position to just right of the debug status window
@@ -1264,6 +1268,8 @@ void	LoadSettings (void)
     BOOL dxPalAspectRatio = FALSE;
     BOOL dxMaskSafeArea = FALSE;
     BOOL dxNtscFilter = FALSE;
+	CPUWndPosX = 0;
+	CPUWndPosY = 0;
 
 	FrameStep = FALSE;
 	Path_ROM[0] = Path_NMV[0] = Path_AVI[0] = Path_PAL[0] = 0;
@@ -1289,6 +1295,9 @@ void	LoadSettings (void)
 	Size = sizeof(DWORD);	RegQueryValueEx(SettingsBase, _T("PosY")        , 0, NULL, (LPBYTE)&PosY           , &Size);
 	Size = sizeof(DWORD);	RegQueryValueEx(SettingsBase, _T("Region")      , 0, NULL, (LPBYTE)&MyRegion       , &Size);
 
+	Size = sizeof(DWORD);	RegQueryValueEx(SettingsBase, _T("CPUWndPosX"), 0, NULL, (LPBYTE)&CPUWndPosX, &Size);
+	Size = sizeof(DWORD);	RegQueryValueEx(SettingsBase, _T("CPUWndPosY"), 0, NULL, (LPBYTE)&CPUWndPosY, &Size);
+
 	Size = MAX_PATH * sizeof(TCHAR);	RegQueryValueEx(SettingsBase, _T("Path_ROM"), 0, NULL, (LPBYTE)&Path_ROM, &Size);
 	Size = MAX_PATH * sizeof(TCHAR);	RegQueryValueEx(SettingsBase, _T("Path_NMV"), 0, NULL, (LPBYTE)&Path_NMV, &Size);
 	Size = MAX_PATH * sizeof(TCHAR);	RegQueryValueEx(SettingsBase, _T("Path_AVI"), 0, NULL, (LPBYTE)&Path_AVI, &Size);
@@ -1307,6 +1316,8 @@ void	LoadSettings (void)
     if ( DebugExt::ntscAspectRatio )
         DebugExt::palAspectRatio = false;
 
+	Debugger::CPUWndPosX = CPUWndPosX;
+	Debugger::CPUWndPosY = CPUWndPosY;
 	Controllers::LoadSettings(SettingsBase);
 	GFX::LoadSettings(SettingsBase);
 

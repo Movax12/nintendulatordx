@@ -150,7 +150,7 @@ BEGIN
         BEGIN
             MENUITEM "&Randomize Memory",           ID_DEBUGEXT_RNDMEMORY
             MENUITEM "&Memory Warnings",            ID_DEBUGEXT_MEM_WARNINGS
-			MENUITEM "Pause on Memory &Warnings",	ID_DEBUGEXT_PAUSEON_MEM_WARNINGS
+			MENUITEM "Break on Memory &Warnings",	ID_DEBUGEXT_PAUSEON_MEM_WARNINGS
             MENUITEM "N&TSC Filter",                ID_DEBUGEXT_NTSC_FILTER
             MENUITEM "&NTSC Aspect Ratio",          ID_DEBUGEXT_NTSC_ASPECT_RATIO
             MENUITEM "&PAL Aspect Ratio",           ID_DEBUGEXT_PAL_ASPECT_RATIO

@@ -34,6 +34,9 @@ namespace Debugger
 {
 extern BOOL	Enabled;
 extern int	Mode;
+extern int CPUWndPosX;
+extern int CPUWndPosY;
+extern HWND	CPUWnd;
 
 extern BOOL	NTabChanged, PalChanged, PatChanged, SprChanged;
 

@@ -72,6 +72,9 @@
 // Emulate some of the PowerPak registers.
 // #define POWERPAK_EMULATION
 
+// show the debug dialog: (if it is already active, it's okay)
+#define SHOW_DEBUG SendMessage(hMainWnd, WM_COMMAND, ID_DEBUG_CPU_ON, 0);
+
 #include "stdafx.h"
 #include <time.h>
 #include <windowsx.h>
@@ -2589,7 +2592,8 @@ void MemoryReadEvent( int addr, bool isDummy )
         {
             memory_access_info[ addr ] = MEM_DIAGNOSTIC_SHOWN;
 			if (pauseOnMemoryWarnings) {
-				EI.DbgOut(_T("Emulation Paused: Uninitialized memory accessed: $%X (PC = $%X)"), addr, CPU::OpAddr);
+				EI.DbgOut(_T("Emulation Stopped: Uninitialized memory accessed: $%X (PC = $%X)"), addr, CPU::OpAddr);
+				SHOW_DEBUG
 				NES::DoStop = TRUE;
 			} else {
 				EI.DbgOut(_T("Warning: Uninitialized memory accessed: $%X (PC = $%X)"), addr, CPU::OpAddr);
@@ -2671,6 +2675,7 @@ void AbsAddrDiagnostic( int addr )
     {
         EI.DbgOut(_T("Info: Breaking at absolute address diagnostic at PC = $%X"), CPU::OpAddr);
         NES::DoStop = TRUE;
+		SHOW_DEBUG
     }
 #endif
 
@@ -2829,6 +2834,7 @@ void HandleDebuggerBreak( int pc )
     {
         EI.DbgOut(_T("Info: Debug breakpoint reached at PC = $%X"), pc);
         NES::DoStop = TRUE;
+		SHOW_DEBUG
     }
 }
 
@@ -3068,7 +3074,9 @@ int stop( lua_State* L )
     {
         // Stop the emulator.
         NES::DoStop = TRUE;
+		SHOW_DEBUG
         // Wait for the emulator to be actually stopped before continuing.
+		// 2022: This seems to often freeze Nintendulator, remove it - Movax12
       //  while ( NES::Running )
       //  {
       //      Sleep( 1 );

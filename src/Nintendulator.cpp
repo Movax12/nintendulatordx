@@ -568,6 +568,10 @@ LRESULT CALLBACK	WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_DEBUG_CPU:
 			Debugger::SetMode(Debugger::Mode ^ DEBUG_MODE_CPU);
 			break;
+		case ID_DEBUG_CPU_ON:
+			// always on
+			Debugger::SetMode(Debugger::Mode | DEBUG_MODE_CPU);
+			break;
 		case ID_DEBUG_PPU:
 			Debugger::SetMode(Debugger::Mode ^ DEBUG_MODE_PPU);
 			break;

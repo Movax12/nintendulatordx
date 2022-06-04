@@ -93,6 +93,9 @@ int	Depth;
 
 int	Palette, Nametable;
 
+int CPUWndPosX;
+int CPUWndPosY;
+
 HDC	PaletteDC;	// Palette
 HBITMAP	PaletteBMP;
 
@@ -110,6 +113,7 @@ HBITMAP	TileBMP;
 
 HWND	CPUWnd;
 HWND	PPUWnd;
+
 
 int	TraceOffset;	// -1 to center on PC, otherwise center on TraceOffset
 int	MemOffset;
@@ -285,11 +289,20 @@ void	SetMode (int NewMode)
 	if ((Mode & DEBUG_MODE_CPU) && !CPUWnd)
 	{
 		CPUWnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_DEBUGGER_CPU), hMainWnd, CPUProc);
-		SetWindowPos(CPUWnd, hMainWnd, wRect.right, wRect.top, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOOWNERZORDER);
+		// assume non-zero coords are good enough to indicate a valid position
+		if (CPUWndPosY + CPUWndPosX)
+			SetWindowPos(CPUWnd, hMainWnd, CPUWndPosX, CPUWndPosY, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOOWNERZORDER);
+		else
+			SetWindowPos(CPUWnd, hMainWnd, wRect.right, wRect.top, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOOWNERZORDER);
         DebugExt::Init();
 	}
 	else if (!(Mode & DEBUG_MODE_CPU) && CPUWnd)
 	{
+		RECT wRectd;
+		GetWindowRect(CPUWnd, &wRectd);
+		CPUWndPosX = wRectd.left;
+		CPUWndPosY = wRectd.top;
+
 		DestroyWindow(CPUWnd);
 		CPUWnd = NULL;
 	}
