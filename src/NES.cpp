@@ -81,7 +81,6 @@ void	Destroy (void)
 {
 	if (ROMLoaded)
 		CloseFile();
-	SaveSettings();
 #ifdef	ENABLE_DEBUGGER
 	Debugger::Destroy();
 #endif	/* ENABLE_DEBUGGER */
@@ -89,7 +88,7 @@ void	Destroy (void)
 	APU::Destroy();
 	Controllers::Destroy();
 	MapperInterface::Destroy();
-
+	SaveSettings();
 	DestroyWindow(hMainWnd);
 }
 

@@ -2,6 +2,9 @@
 // Microsoft Visual C++ generated include file.
 // Used by Nintendulator.rc
 //
+#define ID_MARK_DIS_START               3
+#define ID_MARK_DIS_END                 5
+#define ID_DO_DIS                       6
 #define IDS_APP_TITLE                   101
 #define IDI_NINTENDULATOR               102
 #define IDI_SMALL                       103
@@ -320,6 +323,8 @@
 #define IDC_DEBUG_BANK_PPU3C            1285
 #define IDC_PAL_PC10_ALT                1286
 #define IDC_PAL_PC10_COMPAT             1287
+#define IDC_START_ADDR                  1289
+#define IDC_END_ADDR                    1290
 #define IDC_DEBUG_SOURCECODE_LIST       5000
 #define IDC_DEBUG_SOURCEFILE            5001
 #define IDC_DEBUG_WATCH_LIST            5002
@@ -373,7 +378,6 @@
 #define ID_SOUND_ENABLED                32812
 #define ID_INPUT_SETUP                  32813
 #define ID_DEBUG_CPU                    32814
-#define ID_DEBUG_CPU_ON                 32827
 #define ID_DEBUG_PPU                    32815
 #define ID_DEBUG_STATWND                32816
 #define ID_GAME                         32817
@@ -386,6 +390,7 @@
 #define ID_FILE_BROWSESAVES             32824
 #define ID_CPU_BADOPS                   32825
 #define ID_PPU_MODE_DENDY               32826
+#define ID_DEBUG_CPU_ON                 32827
 #define ID_DEBUGEXT_PAUSEON_MEM_WARNINGS 32832
 #define ID_DEBUGEXT_RNDMEMORY           35000
 #define ID_DEBUGEXT_MEM_WARNINGS        35001
@@ -402,7 +407,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        154
 #define _APS_NEXT_COMMAND_VALUE         32833
-#define _APS_NEXT_CONTROL_VALUE         1289
+#define _APS_NEXT_CONTROL_VALUE         1290
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif

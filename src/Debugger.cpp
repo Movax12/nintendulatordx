@@ -95,6 +95,7 @@ int	Palette, Nametable;
 
 int CPUWndPosX;
 int CPUWndPosY;
+int disAddr1, disAddr2;
 
 HDC	PaletteDC;	// Palette
 HBITMAP	PaletteBMP;
@@ -257,7 +258,8 @@ void	Init (void)
 
 	CPUWnd = NULL;
 	PPUWnd = NULL;
-
+	disAddr1 = -1;
+	disAddr2 = -1;
 	Breakpoints = NULL;
 	TraceOffset = -1;
 	MemOffset = 0;
@@ -284,7 +286,7 @@ void	SetMode (int NewMode)
 	GetWindowRect(hMainWnd,&wRect);
 
 	Mode = NewMode;
-	Enabled = (Mode > 0) ? TRUE : FALSE;
+	Enabled = (Mode > 0);
 
 	if ((Mode & DEBUG_MODE_CPU) && !CPUWnd)
 	{
@@ -298,10 +300,9 @@ void	SetMode (int NewMode)
 	}
 	else if (!(Mode & DEBUG_MODE_CPU) && CPUWnd)
 	{
-		RECT wRectd;
-		GetWindowRect(CPUWnd, &wRectd);
-		CPUWndPosX = wRectd.left;
-		CPUWndPosY = wRectd.top;
+		GetWindowRect(CPUWnd, &wRect);
+		CPUWndPosX = wRect.left;
+		CPUWndPosY = wRect.top;
 
 		DestroyWindow(CPUWnd);
 		CPUWnd = NULL;
@@ -383,7 +384,7 @@ unsigned char DebugMemPPU (unsigned short Addr)
 
 // Decodes an instruction into plain text, suitable for displaying in the debugger or writing to a logfile
 // Returns the effective address for usage with breakpoints
-int	DecodeInstruction (unsigned short Addr, char *str1, TCHAR *str2)
+int	DecodeInstruction(unsigned short Addr, char *str1, TCHAR *str2, TCHAR *str3)
 {
 	unsigned char OpData[3] = {0, 0, 0};
 	unsigned short Operand = 0, MidAddr = 0;
@@ -505,6 +506,29 @@ int	DecodeInstruction (unsigned short Addr, char *str1, TCHAR *str2)
 		default :	_tcscpy(str2, _T(""));																								break;
 		}
 	}
+	// Use this for outputting text for the clipboard
+	if (str3)
+	{
+		switch (TraceAddrMode[DebugMemCPU(Addr)])
+		{
+		case IMP:
+		case ERR:	_stprintf(str3, _T("%04X %02X       %hs"),				Addr, OpData[0], TraceArr[OpData[0]]);						break;
+		case ACC:	_stprintf(str3, _T("%04X %02X       %hs A"),			Addr, OpData[0], TraceArr[OpData[0]]);						break;
+		case IMM:	_stprintf(str3, _T("%04X %02X %02X    %hs #$%02X"),		Addr, OpData[0], OpData[1], TraceArr[OpData[0]], Operand);	break;
+		case REL:	_stprintf(str3, _T("%04X %02X %02X    %hs $%04X"),		Addr, OpData[0], OpData[1], TraceArr[OpData[0]], Operand);	break;
+		case ZPG:	_stprintf(str3, _T("%04X %02X %02X    %hs $%02X"),		Addr, OpData[0], OpData[1], TraceArr[OpData[0]], Operand);	break;
+		case ZPX:	_stprintf(str3, _T("%04X %02X %02X    %hs $%02X,X"),	Addr, OpData[0], OpData[1], TraceArr[OpData[0]], Operand);	break;
+		case ZPY:	_stprintf(str3, _T("%04X %02X %02X    %hs $%02X,Y"),	Addr, OpData[0], OpData[1], TraceArr[OpData[0]], Operand);	break;
+		case INX:	_stprintf(str3, _T("%04X %02X %02X    %hs ($%02X,X)"),	Addr, OpData[0], OpData[1], TraceArr[OpData[0]], Operand);	break;
+		case INY:	_stprintf(str3, _T("%04X %02X %02X    %hs ($%02X),Y"),	Addr, OpData[0], OpData[1], TraceArr[OpData[0]], Operand);	break;
+		case ADR:	_stprintf(str3, _T("%04X %02X %02X %02X %hs $%04X"),	Addr, OpData[0], OpData[1], OpData[2], TraceArr[OpData[0]], Operand);	break;
+		case ABS:	_stprintf(str3, _T("%04X %02X %02X %02X %hs $%04X"),	Addr, OpData[0], OpData[1], OpData[2], TraceArr[OpData[0]], Operand);	break;
+		case IND:	_stprintf(str3, _T("%04X %02X %02X %02X %hs ($%04X)"),	Addr, OpData[0], OpData[1], OpData[2], TraceArr[OpData[0]], Operand);	break;
+		case ABX:	_stprintf(str3, _T("%04X %02X %02X %02X %hs $%04X,X"),	Addr, OpData[0], OpData[1], OpData[2], TraceArr[OpData[0]], Operand);	break;
+		case ABY:	_stprintf(str3, _T("%04X %02X %02X %02X %hs $%04X,Y"),	Addr, OpData[0], OpData[1], OpData[2], TraceArr[OpData[0]], Operand);	break;
+		default:	_tcscpy(str3, _T(""));																								break;
+		}
+	}
 	return EffectiveAddr;
 }
 
@@ -525,7 +549,7 @@ bool	UpdateCPU (void)
 		if (BPcache[CPU::PC] & DEBUG_BREAK_EXEC)
 			NES::DoStop = TRUE;
 		// I/O break
-		BreakAddr = DecodeInstruction((unsigned short)CPU::PC, NULL, NULL);
+		BreakAddr = DecodeInstruction((unsigned short)CPU::PC, NULL, NULL, NULL);
 		TpVal = DebugMemCPU((unsigned short)CPU::PC);
 		if (BreakAddr != -1)
 		{
@@ -646,7 +670,7 @@ bool	UpdateCPU (void)
 	{
 		if (Addr == CPU::PC)
 			TpVal = i;
-		DecodeInstruction(Addr, NULL, tps);
+		DecodeInstruction(Addr, NULL, tps, NULL);
 		SendDlgItemMessage(CPUWnd, IDC_DEBUG_TRACE_LIST, LB_ADDSTRING, 0, (LPARAM)tps);
 		Addr = Addr + AddrBytes[TraceAddrMode[DebugMemCPU(Addr)]];
 	}
@@ -832,7 +856,7 @@ void	AddInst (void)
 	{
 		unsigned short Addr = (unsigned short)CPU::PC;
 		char tps[64];
-		DecodeInstruction(Addr, tps, NULL);
+		DecodeInstruction(Addr, tps, NULL, NULL);
 		fwrite(tps, 1, strlen(tps), LogFile);
 		CPU::JoinFlags();
 		sprintf(tps, "  A:%02X X:%02X Y:%02X P:%02X SP:%02X CYC:%3i SL:%i\n", CPU::A, CPU::X, CPU::Y, CPU::P, CPU::SP, PPU::Clockticks, PPU::SLnum);
@@ -1464,28 +1488,30 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 			EnableWindow(GetDlgItem(hwndDlg, IDC_BREAK_ADDR2), TRUE);
 			EnableWindow(GetDlgItem(hwndDlg, IDC_BREAK_OPNUM), FALSE);
 		}
-        else if (bp == (struct tBreakpoint *)(size_t)0xFFFFFFFE)
-        {
-            bp = NULL;
-            SetWindowLongPtr(hwndDlg, GWLP_USERDATA, NULL);
-            CheckRadioButton(hwndDlg, IDC_BREAK_EXEC, IDC_BREAK_BRK, IDC_BREAK_EXEC);
-            {
-                // get the address from currently selected source code listing line
-                Addr = DebugExt::GetCurrentSourceCodeAddress();
-                if(Addr != -1) {
-                    _stprintf(tpc, _T("%04X"), Addr);
-                    SetDlgItemText(hwndDlg, IDC_BREAK_ADDR1, tpc);
-                } else {
-                    EndDialog(hwndDlg, NULL);
-                }
-            }
-            SetDlgItemText(hwndDlg, IDC_BREAK_ADDR2, _T(""));
-            SetDlgItemText(hwndDlg, IDC_BREAK_OPNUM, _T("00"));
-            CheckDlgButton(hwndDlg, IDC_BREAK_ENABLED, BST_CHECKED);
-            EnableWindow(GetDlgItem(hwndDlg, IDC_BREAK_ADDR1), TRUE);
-            EnableWindow(GetDlgItem(hwndDlg, IDC_BREAK_ADDR2), TRUE);
-            EnableWindow(GetDlgItem(hwndDlg, IDC_BREAK_OPNUM), FALSE);
-        }
+		else if (bp == (struct tBreakpoint *)(size_t)0xFFFFFFFE)
+		{
+			bp = NULL;
+			SetWindowLongPtr(hwndDlg, GWLP_USERDATA, NULL);
+			CheckRadioButton(hwndDlg, IDC_BREAK_EXEC, IDC_BREAK_BRK, IDC_BREAK_EXEC);
+			{
+				// get the address from currently selected source code listing line
+				Addr = DebugExt::GetCurrentSourceCodeAddress();
+				if (Addr != -1) {
+					_stprintf(tpc, _T("%04X"), Addr);
+					SetDlgItemText(hwndDlg, IDC_BREAK_ADDR1, tpc);
+				}
+				else {
+					EndDialog(hwndDlg, NULL);
+				}
+			}
+			SetDlgItemText(hwndDlg, IDC_BREAK_ADDR2, _T(""));
+			SetDlgItemText(hwndDlg, IDC_BREAK_OPNUM, _T("00"));
+			CheckDlgButton(hwndDlg, IDC_BREAK_ENABLED, BST_CHECKED);
+			EnableWindow(GetDlgItem(hwndDlg, IDC_BREAK_ADDR1), TRUE);
+			EnableWindow(GetDlgItem(hwndDlg, IDC_BREAK_ADDR2), TRUE);
+			EnableWindow(GetDlgItem(hwndDlg, IDC_BREAK_OPNUM), FALSE);
+
+		}
 		else if (bp != NULL)
 		{
 			switch (bp->type)
@@ -1570,6 +1596,26 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 		}
 		SetFocus(GetDlgItem(hwndDlg, IDC_BREAK_ADDR1));
 		SendDlgItemMessage(hwndDlg, IDC_BREAK_ADDR1, EM_SETSEL, 0, -1);
+		// Disassembly Section:
+		if (disAddr1 != -1) {
+			_stprintf(tpc, _T("%04X"), disAddr1);
+			SetDlgItemText(hwndDlg, IDC_START_ADDR, tpc);
+		} else {
+			SetDlgItemText(hwndDlg, IDC_START_ADDR, _T("----"));
+		}
+		if (disAddr2 != -1) {
+			_stprintf(tpc, _T("%04X"), disAddr2);
+			SetDlgItemText(hwndDlg, IDC_END_ADDR, tpc);
+		}
+		else {
+			SetDlgItemText(hwndDlg, IDC_END_ADDR, _T("----"));
+		}
+		if ((disAddr2 > disAddr1) && (disAddr1 >= 0 && disAddr1 <= 0xFFFF) && (disAddr2 >= 0 && disAddr2 <= 0xFFFF)){
+			EnableWindow(GetDlgItem(hwndDlg, ID_DO_DIS), TRUE);
+		}
+		else{
+			EnableWindow(GetDlgItem(hwndDlg, ID_DO_DIS), FALSE);
+		}
 		return FALSE;
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam); 
@@ -1668,6 +1714,80 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 			bp->updateDescription();
 			EndDialog(hwndDlg, (INT_PTR)bp);
 			return TRUE;
+
+		case ID_MARK_DIS_START:
+			GetDlgItemText(hwndDlg, IDC_BREAK_ADDR1, tpc, 5);
+			disAddr1 = _tcstol(tpc, NULL, 16);
+			_stprintf(tpc, _T("%04X"), disAddr1);
+			SetDlgItemText(hwndDlg, IDC_START_ADDR, tpc);
+
+			if ((disAddr2 >= disAddr1) && (disAddr1 >= 0 && disAddr1 <= 0xFFFF) && (disAddr2 >= 0 && disAddr2 <= 0xFFFF)){
+				EnableWindow(GetDlgItem(hwndDlg, ID_DO_DIS), TRUE);
+			}
+			else{
+				EnableWindow(GetDlgItem(hwndDlg, ID_DO_DIS), FALSE);
+				Sleep(100);
+				EndDialog(hwndDlg, (INT_PTR)NULL);
+			}
+			return TRUE;
+				
+		case ID_MARK_DIS_END:
+			GetDlgItemText(hwndDlg, IDC_BREAK_ADDR1, tpc, 5);
+			disAddr2 = _tcstol(tpc, NULL, 16);
+			_stprintf(tpc, _T("%04X"), disAddr2);
+			SetDlgItemText(hwndDlg, IDC_END_ADDR, tpc);
+
+			if ((disAddr2 >= disAddr1) && (disAddr1 >= 0 && disAddr1 <= 0xFFFF) && (disAddr2 >= 0 && disAddr2 <= 0xFFFF)){
+				EnableWindow(GetDlgItem(hwndDlg, ID_DO_DIS), TRUE);
+			}
+			else{
+				EnableWindow(GetDlgItem(hwndDlg, ID_DO_DIS), FALSE);
+				Sleep(100);
+				EndDialog(hwndDlg, (INT_PTR)NULL);
+			}
+			return TRUE;
+
+		case ID_DO_DIS:
+
+			if (!OpenClipboard(hwndDlg))
+				return FALSE;
+			EmptyClipboard();
+
+			// Appoximate size needed for buffer
+
+			LPTSTR  lptstr;
+			HGLOBAL hglbCopy;
+			int cch, i;
+			TCHAR tps[64];
+
+			cch = (disAddr2 - disAddr1 + 1) * 30; // 30 chars per address should be enough for anybody
+
+			hglbCopy = GlobalAlloc(GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR));
+			if (hglbCopy == NULL)
+			{
+				CloseClipboard();
+				return FALSE;
+			}
+			lptstr = (LPTSTR)GlobalLock(hglbCopy);
+			
+			Addr = disAddr1;
+			while (Addr <= disAddr2 + 1)
+			{
+				DecodeInstruction(Addr, NULL, NULL, tps);
+				i = 0;
+				while (tps[i]) *lptstr++ = tps[i++];
+				*lptstr++ = '\n';
+				Addr = Addr + AddrBytes[TraceAddrMode[DebugMemCPU(Addr)]];
+			}
+			*lptstr = 0;
+			
+			// Place the handle on the clipboard. 
+			
+			SetClipboardData(CF_UNICODETEXT, hglbCopy);
+			GlobalUnlock(hglbCopy);
+			GlobalFree(hglbCopy);
+			CloseClipboard();
+			Sleep(100);
 
 		case IDCANCEL:
 			EndDialog(hwndDlg, (INT_PTR)NULL);

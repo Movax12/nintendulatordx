@@ -218,5 +218,6 @@ end
 
 -- Display the console.
 dlg_console:show()
+-- dlg_console:showxy(100,100)
 
 NDX.print( "Lua initialization complete." )

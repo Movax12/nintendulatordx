@@ -1409,7 +1409,6 @@ void Init()
 
     SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_TIMER_LIST, LB_SETHORIZONTALEXTENT, 400, NULL);
 
-
     HWND hwnd_edit = GetDlgItem(Debugger::CPUWnd, IDC_DEBUG_WATCH_EDIT); 
     origeditproc = (WNDPROC)SetWindowLong(hwnd_edit, GWL_WNDPROC, (LONG)WatchEditSubclass);
 }
@@ -1647,9 +1646,10 @@ int GetCurrentSourceCodeAddress()
             {
                 if ( spaninfo->count )
                 {
-                    const cc65_spandata* spandata = &spaninfo->data[ 0 ];
+					const cc65_spandata* spandata = &spaninfo->data[ spaninfo->count - 1];
                     // TODO: Is it ok to assume that the spans are sorted by
                     //   address?
+					// Movax12: Seems best to take the highest count.
                     result = spandata->span_start;
                 }
 
