@@ -1435,19 +1435,19 @@ void SourceFileSelChanged()
     std::string srcfilestransi = (al.source)->filename;
     SourceFile &srcfile = *al.source;
 
-	// we should always just update - opening the debugger on break the second time shows no source text.
-    //if(srcfilestransi != current_srcfile) {
-        SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, WM_SETREDRAW, FALSE, 0);
-        SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, LB_RESETCONTENT, 0, 0);
+	
+	if (srcfilestransi != current_srcfile) {
+		SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, WM_SETREDRAW, FALSE, 0);
+		SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, LB_RESETCONTENT, 0, 0);
 
-        for(SourceFileData::iterator it = srcfile.data.begin(); it != srcfile.data.end(); ++it) {
-            SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, LB_ADDSTRING, 0, (LPARAM)it->c_str());
-        }    
-    
-        SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, WM_SETREDRAW, TRUE, 0);
-        
-        current_srcfile = srcfilestransi;
-    //}
+		for (SourceFileData::iterator it = srcfile.data.begin(); it != srcfile.data.end(); ++it) {
+			SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, LB_ADDSTRING, 0, (LPARAM)it->c_str());
+		}
+
+		SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, WM_SETREDRAW, TRUE, 0);
+
+		current_srcfile = srcfilestransi;
+	}
 
 	// set the selection in the sourcecode view (and scroll)
 
@@ -1848,7 +1848,7 @@ void InitDlg(HWND hwndDlg)
         stdstring timer_title = GetTimerTitle(i) + _T("\tinactive");
         SendDlgItemMessage(hwndDlg, IDC_DEBUG_TIMER_LIST, LB_ADDSTRING, 0, (LPARAM)timer_title.c_str());
     }
-
+	current_srcfile = "";
     CheckDlgButton(hwndDlg, IDC_EXPAND_MACROS, expand_macros ? BST_CHECKED : BST_UNCHECKED);
 }
 
