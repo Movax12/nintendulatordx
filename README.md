@@ -20,4 +20,9 @@ Mostly changes to the Debug dialog.
 - Disassembly to clipboard feature added in Add Breakpoint dialog.
 - Menu option to break on memory warnings.
 - Save position of Debug dialog on close.
+- Breakpoints always stop emulation. (Not only when Debug dialog is opened. Maybe add option to only have them active when debugger opened?)
+- Debug dialog now opened on any breakpoints if not already opened.
+- ndxDebugBreak breakpoints are added to native Nintendulator breakpoints and can be edited or disabled.
+- Breakpoints attempted to be selected when encountered. (Works for execution only.)
+
 
