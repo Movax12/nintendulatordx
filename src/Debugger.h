@@ -22,6 +22,7 @@
 #define	DEBUG_BREAK_NMI		0x10
 #define	DEBUG_BREAK_IRQ		0x20
 #define	DEBUG_BREAK_BRK		0x40
+#define NDX_DEBUG_BREAK		0x80
 /* #define	DEBUG_BREAK_RST		0x80	/* unused */
 
 #define	DEBUG_DETAIL_NONE	0
@@ -42,6 +43,8 @@ extern BOOL	NTabChanged, PalChanged, PatChanged, SprChanged;
 
 extern BOOL	Step;
 
+int 	CheckForBreakPoint();
+void	AddExternalBreakPoint(int type, int opcode, int enabled, int addr_start, int addr_end);
 void	Init (void);
 void	Destroy (void);
 void	SetMode(int NewMode);

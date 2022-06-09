@@ -957,8 +957,13 @@ void ProcessExtendedDebugInfo( const SymbolMap& symbol_map, const std::vector< u
     switch ( type )
     {
     case NDXDT_BREAK:
-        obj = new ExDbgBreak( symbol_map, exdbginfo );
-        break;
+		// original code commented:
+		// obj = new ExDbgBreak( symbol_map, exdbginfo );
+        // break;
+		obj = new ExDbgBreak(symbol_map, exdbginfo);
+		Debugger::AddExternalBreakPoint(NDX_DEBUG_BREAK, 0, TRUE, obj->getPC(), obj->getPC());
+		break;
+
     case NDXDT_STRING:
         obj = new ExDbgString( symbol_map, exdbginfo );
         break;
@@ -979,7 +984,9 @@ void ProcessExtendedDebugInfo( const SymbolMap& symbol_map, const std::vector< u
         ;
     }
 
-    if ( obj )
+	// original:
+	// if (obj)
+	if (obj && type != NDXDT_BREAK)
     {
         exdbg_objects[ obj->getPC() ].push_back( obj );
     }
@@ -1428,7 +1435,8 @@ void SourceFileSelChanged()
     std::string srcfilestransi = (al.source)->filename;
     SourceFile &srcfile = *al.source;
 
-    if(srcfilestransi != current_srcfile) {
+	// we should always just update - opening the debugger on break the second time shows no source text.
+    //if(srcfilestransi != current_srcfile) {
         SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, WM_SETREDRAW, FALSE, 0);
         SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, LB_RESETCONTENT, 0, 0);
 
@@ -1439,7 +1447,7 @@ void SourceFileSelChanged()
         SendDlgItemMessage(Debugger::CPUWnd, IDC_DEBUG_SOURCECODE_LIST, WM_SETREDRAW, TRUE, 0);
         
         current_srcfile = srcfilestransi;
-    }
+    //}
 
 	// set the selection in the sourcecode view (and scroll)
 
@@ -2828,14 +2836,14 @@ void HandleProfilingStartEnd( int addr )
 #endif
 }
 
-void HandleDebuggerBreak( int pc )
+void HandleDebuggerBreak(int pc)
 {
-    if ( NES::ROMLoaded )
-    {
-        EI.DbgOut(_T("Info: Debug breakpoint reached at PC = $%X"), pc);
-        NES::DoStop = TRUE;
+	if (NES::ROMLoaded)
+	{
+		EI.DbgOut(_T("Info: Debug breakpoint reached at PC = $%X"), pc);
+		NES::DoStop = TRUE;
 		SHOW_DEBUG
-    }
+	}
 }
 
 void InvalidateMemoryAccessInfo()

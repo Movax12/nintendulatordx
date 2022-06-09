@@ -398,6 +398,7 @@
 #define ID_DEBUGEXT_PAL_ASPECT_RATIO    35003
 #define ID_DEBUGEXT_MASK_SAFE_AREA      35004
 #define ID_DEBUGEXT_NTSC_FILTER         35005
+#define ID_BREAK_MARK_BREAKPOINT		35006
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

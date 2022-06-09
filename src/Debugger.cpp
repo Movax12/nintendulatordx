@@ -33,7 +33,7 @@ struct tBreakpoint
 	unsigned char type;
 	unsigned char enabled;
 	struct tBreakpoint *prev, *next;
-	void updateDescription ()
+	void updateDescription()
 	{
 		switch (type)
 		{
@@ -41,6 +41,11 @@ struct tBreakpoint
 			if (addr_start == addr_end)
 				_stprintf(desc, _T("Exec: $%04X"), addr_start);
 			else	_stprintf(desc, _T("Exec: $%04X-$%04X"), addr_start, addr_end);
+			break;
+		case NDX_DEBUG_BREAK:
+			if (addr_start == addr_end)
+				_stprintf(desc, _T("NDX Debug Break: $%04X"), addr_start);
+			else	_stprintf(desc, _T("NDX Debug Break: $%04X-$%04X"), addr_start, addr_end);
 			break;
 		case DEBUG_BREAK_READ:
 			if (addr_start == addr_end)
@@ -73,6 +78,7 @@ struct tBreakpoint
 			_stprintf(desc, _T("UNDEFINED"));
 			break;
 		}
+		
 		if (enabled)
 			_tcscat(desc, _T(" (+)"));
 		else	_tcscat(desc, _T(" (-)"));
@@ -268,6 +274,29 @@ void	Init (void)
 	CacheBreakpoints();
 }
 
+void	AddExternalBreakPoint(int type, int opcode, int enabled, int addr_start, int addr_end)
+{
+	struct tBreakpoint *bp;
+	bp = new struct tBreakpoint;
+	if (bp == NULL)
+	{
+		EI.DbgOut(_T("Internal Error: Could not set Breakpoint."));
+		return;
+	}
+	bp->next = Breakpoints;
+	bp->prev = NULL;
+	if (bp->next != NULL)
+		bp->next->prev = bp;
+	Breakpoints = bp;
+	bp->type = (unsigned char)type;
+	bp->opcode = (unsigned char)opcode;
+	bp->enabled = (unsigned char)enabled;
+	bp->addr_start = (unsigned short)addr_start;
+	bp->addr_end = (unsigned short)addr_end;
+	bp->updateDescription();
+	CacheBreakpoints();
+}
+
 void	Destroy (void)
 {
 	StopLogging();
@@ -358,6 +387,9 @@ void	StopLogging (void)
 		fclose(LogFile);
 	Logging = FALSE;
 }
+
+
+
 
 unsigned short DebugMemCPUEx (unsigned short Addr)
 {
@@ -532,6 +564,52 @@ int	DecodeInstruction(unsigned short Addr, char *str1, TCHAR *str2, TCHAR *str3)
 	return EffectiveAddr;
 }
 
+// Check for breakpoint:
+// return:
+// 0: no break point
+// 1: regular breakpoint
+// 2: NDX breakpoint
+//
+int	CheckForBreakPoint()
+
+{
+	int BreakAddr, TpVal;
+	// PC has execution breakpoint
+	if (BPcache[CPU::PC] & DEBUG_BREAK_EXEC)
+		return 1;
+	// NDX breakpoint
+	if (BPcache[CPU::PC] & NDX_DEBUG_BREAK)
+		return 2;
+
+	// I/O break
+	BreakAddr = DecodeInstruction((unsigned short)CPU::PC, NULL, NULL, NULL);
+	TpVal = DebugMemCPU((unsigned short)CPU::PC);
+	if (BreakAddr != -1)
+	{
+		// read opcode, effective address has read breakpoint
+		if ((TraceIO[TpVal] & DEBUG_BREAK_READ) && (BPcache[BreakAddr] & DEBUG_BREAK_READ))
+			return 1;
+		// write opcode, effective address has write breakpoint
+		if ((TraceIO[TpVal] & DEBUG_BREAK_WRITE) && (BPcache[BreakAddr] & DEBUG_BREAK_WRITE))
+			return 1;
+	}
+	// opcode breakpoint
+	if (BPcache[0x10000 | TpVal] & DEBUG_BREAK_OPCODE)
+		return 1;
+	// interrupt breakpoints
+	if ((CPU::GotInterrupt == INTERRUPT_NMI) && (BPcache[0x10100] & DEBUG_BREAK_NMI))
+		return 1;
+	//		if ((CPU::GotInterrupt == INTERRUPT_RST) && (BPcache[0x10100] & DEBUG_BREAK_RST))
+	//			NES::DoStop = TRUE;
+	if ((CPU::GotInterrupt == INTERRUPT_IRQ) && (BPcache[0x10100] & DEBUG_BREAK_IRQ))
+		return 1;
+	if ((CPU::GotInterrupt == INTERRUPT_BRK) && (BPcache[0x10100] & DEBUG_BREAK_BRK))
+		return 1;
+
+	return 0;
+
+}
+
 bool	UpdateCPU (void)
 {
 	TCHAR tps[64];
@@ -542,38 +620,7 @@ bool	UpdateCPU (void)
 	// if we chose "Step", stop emulation
 	if (Step)
 		NES::DoStop = TRUE;
-	// check for breakpoints
-	{
-		int BreakAddr;
-		// PC has execution breakpoint
-		if (BPcache[CPU::PC] & DEBUG_BREAK_EXEC)
-			NES::DoStop = TRUE;
-		// I/O break
-		BreakAddr = DecodeInstruction((unsigned short)CPU::PC, NULL, NULL, NULL);
-		TpVal = DebugMemCPU((unsigned short)CPU::PC);
-		if (BreakAddr != -1)
-		{
-			// read opcode, effective address has read breakpoint
-			if ((TraceIO[TpVal] & DEBUG_BREAK_READ) && (BPcache[BreakAddr] & DEBUG_BREAK_READ))
-				NES::DoStop = TRUE;
-			// write opcode, effective address has write breakpoint
-			if ((TraceIO[TpVal] & DEBUG_BREAK_WRITE) && (BPcache[BreakAddr] & DEBUG_BREAK_WRITE))
-				NES::DoStop = TRUE;
-		}
-		// opcode breakpoint
-		if (BPcache[0x10000 | TpVal] & DEBUG_BREAK_OPCODE)
-			NES::DoStop = TRUE;
-		// interrupt breakpoints
-		if ((CPU::GotInterrupt == INTERRUPT_NMI) && (BPcache[0x10100] & DEBUG_BREAK_NMI))
-			NES::DoStop = TRUE;
-//		if ((CPU::GotInterrupt == INTERRUPT_RST) && (BPcache[0x10100] & DEBUG_BREAK_RST))
-//			NES::DoStop = TRUE;
-		if ((CPU::GotInterrupt == INTERRUPT_IRQ) && (BPcache[0x10100] & DEBUG_BREAK_IRQ))
-			NES::DoStop = TRUE;
-		if ((CPU::GotInterrupt == INTERRUPT_BRK) && (BPcache[0x10100] & DEBUG_BREAK_BRK))
-			NES::DoStop = TRUE;
-
-	}
+//	CheckForBreakPoint();
 	// if emulation wasn't stopped, don't bother updating the dialog
 	if (!NES::DoStop)
 		return false;
@@ -1301,8 +1348,10 @@ void	UpdatePPU (void)
 	}
 }
 
+
 void	Update (int UpdateMode)
 {
+	
 	bool force = false;
 	if ((Mode & DEBUG_MODE_CPU) && (UpdateMode & DEBUG_MODE_CPU))
 		force = UpdateCPU();
@@ -1377,7 +1426,7 @@ void	CacheBreakpoints (void)
 	{
 		if (!bp->enabled)
 			continue;
-		if (bp->type & (DEBUG_BREAK_EXEC | DEBUG_BREAK_READ | DEBUG_BREAK_WRITE))
+		if (bp->type & (NDX_DEBUG_BREAK | DEBUG_BREAK_EXEC | DEBUG_BREAK_READ | DEBUG_BREAK_WRITE))
 		{
 			for (i = bp->addr_start; i <= bp->addr_end; i++)
 				BPcache[i] |= bp->type;
@@ -1456,7 +1505,7 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 	struct tBreakpoint *bp = (struct tBreakpoint *)GetWindowLongPtr(hwndDlg, GWLP_USERDATA);
 	int line, len, Addr;
 	TCHAR *str;
-
+	
 	int addr1, addr2, opcode, type, enabled;
 
 	switch (uMsg)
@@ -1516,6 +1565,7 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 		{
 			switch (bp->type)
 			{
+			case NDX_DEBUG_BREAK:			
 			case DEBUG_BREAK_EXEC:
 				CheckRadioButton(hwndDlg, IDC_BREAK_EXEC, IDC_BREAK_BRK, IDC_BREAK_EXEC);
 				break;
@@ -1544,6 +1594,7 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 			switch (bp->type)
 			{
 			case DEBUG_BREAK_EXEC:
+			case NDX_DEBUG_BREAK:
 			case DEBUG_BREAK_READ:
 			case DEBUG_BREAK_WRITE:
 			case DEBUG_BREAK_READ | DEBUG_BREAK_WRITE:
@@ -1624,6 +1675,7 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 		switch (wmId)
 		{
 		case IDC_BREAK_EXEC:
+		case NDX_DEBUG_BREAK:
 		case IDC_BREAK_READ:
 		case IDC_BREAK_WRITE:
 		case IDC_BREAK_ACCESS:
@@ -1656,8 +1708,12 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 			enabled = (IsDlgButtonChecked(hwndDlg, IDC_BREAK_ENABLED) == BST_CHECKED);
 
 			type = 0;
-			if (IsDlgButtonChecked(hwndDlg, IDC_BREAK_EXEC) == BST_CHECKED)
-				type = DEBUG_BREAK_EXEC;
+			if (IsDlgButtonChecked(hwndDlg, IDC_BREAK_EXEC) == BST_CHECKED){
+				// if ndx break unchanged, don't change break type
+				if (bp != NULL && bp->type == NDX_DEBUG_BREAK && bp->addr_start == addr1 && bp->addr_end == addr2 && addr1 == addr2 )
+					type = NDX_DEBUG_BREAK;
+				else type = DEBUG_BREAK_EXEC;
+			}
 			if (IsDlgButtonChecked(hwndDlg, IDC_BREAK_READ) == BST_CHECKED)
 				type = DEBUG_BREAK_READ;
 			if (IsDlgButtonChecked(hwndDlg, IDC_BREAK_WRITE) == BST_CHECKED)
@@ -1753,13 +1809,11 @@ INT_PTR CALLBACK BreakpointProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
 				return FALSE;
 			EmptyClipboard();
 
-			// Appoximate size needed for buffer
-
 			LPTSTR  lptstr;
 			HGLOBAL hglbCopy;
 			int cch, i;
 			TCHAR tps[64];
-
+			// Appoximate size needed for buffer
 			cch = (disAddr2 - disAddr1 + 1) * 30; // 30 chars per address should be enough for anybody
 
 			hglbCopy = GlobalAlloc(GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR));
@@ -1840,9 +1894,13 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SetScrollInfo(GetDlgItem(hwndDlg, IDC_DEBUG_MEM_SCROLL), SB_CTL, &sinfo, TRUE);
 		CheckRadioButton(hwndDlg, IDC_DEBUG_MEM_CPU, IDC_DEBUG_MEM_PAL, IDC_DEBUG_MEM_CPU);
 
-		for (bp = Breakpoints; bp != NULL; bp = bp->next)
+		for (bp = Breakpoints; bp != NULL; bp = bp->next) {
 			SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_ADDSTRING, 0, (LPARAM)bp->desc);
-            
+			line = SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)bp->desc);
+			if (CPU::PC >= bp->addr_start && CPU::PC <= bp->addr_end)
+				SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_SETCURSEL, (WPARAM)line, (LPARAM)0);
+		}
+
         DebugExt::InitDlg(hwndDlg);
             
 		return FALSE;
@@ -2009,6 +2067,7 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				// update breakpoint description
 				SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_DELETESTRING, line, 0);
 				SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_ADDSTRING, 0, (LPARAM)bp->desc);
+				line = SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)bp->desc);
 				// reselect it
 				SetBreakpoint(hwndDlg, bp);
 				// then recache the breakpoints
@@ -2023,6 +2082,8 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 			// add it to the breakpoint listbox
 			SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_ADDSTRING, 0, (LPARAM)bp->desc);
+			line = SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)bp->desc);
+			
 			// select it
 			SetBreakpoint(hwndDlg, bp);
 			// then recache the breakpoints
@@ -2042,6 +2103,7 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			// update breakpoint description
 			SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_DELETESTRING, line, 0);
 			SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_ADDSTRING, 0, (LPARAM)bp->desc);
+			line = SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)bp->desc);
 			// reselect it
 			SetBreakpoint(hwndDlg, bp);
 			// then recache the breakpoints
@@ -2066,6 +2128,15 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			CacheBreakpoints();
 			return TRUE;
 
+		case ID_BREAK_MARK_BREAKPOINT:
+			for (bp = Breakpoints; bp != NULL; bp = bp->next) {
+				if (CPU::PC >= bp->addr_start && CPU::PC <= bp->addr_end) {
+					line = SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)bp->desc);
+					SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_SETCURSEL, (WPARAM)line, (LPARAM)0);
+					break;
+				}
+			}
+			return TRUE;
 		case IDC_DEBUG_CONT_RUN:
 			if (NES::ROMLoaded)
 				SendMessage(hMainWnd, WM_COMMAND, ID_CPU_RUN, 0);
@@ -2155,6 +2226,7 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					break;
 				// add it to the breakpoint listbox
 				SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_ADDSTRING, 0, (LPARAM)bp->desc);
+				line = SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)bp->desc);
 				// select it
 				SetBreakpoint(hwndDlg, bp);
 				// then recache the breakpoints
@@ -2172,6 +2244,7 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					break;
 				// add it to the breakpoint listbox
 				SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_ADDSTRING, 0, (LPARAM)bp->desc);
+				line = SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)bp->desc);
 				// select it
 				SetBreakpoint(hwndDlg, bp);
 				// then recache the breakpoints
