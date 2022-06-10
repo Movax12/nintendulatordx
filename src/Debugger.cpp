@@ -1901,6 +1901,7 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				SendDlgItemMessage(hwndDlg, IDC_DEBUG_BREAK_LIST, LB_SETCURSEL, (WPARAM)line, (LPARAM)0);
 		}
 
+		CheckDlgButton(hwndDlg, IDC_IGNORE_BREAKPOINTS, NES::IgnoreBreakPoints ? BST_CHECKED : BST_UNCHECKED);
         DebugExt::InitDlg(hwndDlg);
             
 		return FALSE;
@@ -2053,7 +2054,9 @@ INT_PTR CALLBACK CPUProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_EXPAND_MACROS:
             DebugExt::expand_macros = IsDlgButtonChecked(hwndDlg, IDC_EXPAND_MACROS) == BST_CHECKED;
             return TRUE;
-
+		case IDC_IGNORE_BREAKPOINTS:
+			NES::IgnoreBreakPoints = IsDlgButtonChecked(hwndDlg, IDC_IGNORE_BREAKPOINTS) == BST_CHECKED;
+			return TRUE;
 		case IDC_DEBUG_BREAK_LIST:
 			if (wmEvent == LBN_DBLCLK)
 			{

@@ -325,6 +325,7 @@
 #define IDC_PAL_PC10_COMPAT             1287
 #define IDC_START_ADDR                  1289
 #define IDC_END_ADDR                    1290
+#define IDC_IGNORE_BREAKPOINTS          1290
 #define IDC_DEBUG_SOURCECODE_LIST       5000
 #define IDC_DEBUG_SOURCEFILE            5001
 #define IDC_DEBUG_WATCH_LIST            5002
@@ -392,13 +393,14 @@
 #define ID_PPU_MODE_DENDY               32826
 #define ID_DEBUG_CPU_ON                 32827
 #define ID_DEBUGEXT_PAUSEON_MEM_WARNINGS 32832
+#define ID_DEBUG_BREAK                  32833
 #define ID_DEBUGEXT_RNDMEMORY           35000
 #define ID_DEBUGEXT_MEM_WARNINGS        35001
 #define ID_DEBUGEXT_NTSC_ASPECT_RATIO   35002
 #define ID_DEBUGEXT_PAL_ASPECT_RATIO    35003
 #define ID_DEBUGEXT_MASK_SAFE_AREA      35004
 #define ID_DEBUGEXT_NTSC_FILTER         35005
-#define ID_BREAK_MARK_BREAKPOINT		35006
+#define ID_BREAK_MARK_BREAKPOINT        35006
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -407,8 +409,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        154
-#define _APS_NEXT_COMMAND_VALUE         32833
-#define _APS_NEXT_CONTROL_VALUE         1290
+#define _APS_NEXT_COMMAND_VALUE         32834
+#define _APS_NEXT_CONTROL_VALUE         1291
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif

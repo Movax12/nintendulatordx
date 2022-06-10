@@ -22,6 +22,7 @@ extern BOOL AutoRun;
 extern BOOL FrameStep, GotStep;
 extern BOOL HasMenu;
 extern BOOL LoadedSRAMFromFile;
+extern BOOL IgnoreBreakPoints;
 
 enum Region { REGION_NONE, REGION_NTSC, REGION_PAL, REGION_DENDY };
 extern Region CurRegion;

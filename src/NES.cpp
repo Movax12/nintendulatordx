@@ -40,6 +40,7 @@ BOOL AutoRun;
 BOOL FrameStep, GotStep;
 BOOL HasMenu;
 BOOL LoadedSRAMFromFile;
+BOOL IgnoreBreakPoints;
 Region CurRegion = REGION_NONE;
 
 unsigned char PRG_ROM[MAX_PRGROM_SIZE][0x1000];
@@ -72,6 +73,7 @@ void	Init (void)
 	DoStop = FALSE;
 	GameGenie = FALSE;
 	ROMLoaded = FALSE;
+	IgnoreBreakPoints = FALSE;
 	ZeroMemory(&RI, sizeof(RI));
 
 	UpdateTitlebar();
@@ -1030,20 +1032,24 @@ DWORD	WINAPI	Thread (void *param)
 #endif	/* ENABLE_DEBUGGER */
 		CPU::ExecOp();
 #ifdef	ENABLE_DEBUGGER
-		int i = Debugger::CheckForBreakPoint();
-		if (i) {
-			DoStop = TRUE;
-			
-			// if debugger window is active tell it to highlight the first matching break
-			// as is matches by address only
-			if (Debugger::CPUWnd) {
-				SendMessage(Debugger::CPUWnd, WM_COMMAND, ID_BREAK_MARK_BREAKPOINT, 0);
-			} else {
-				SendMessage(hMainWnd, WM_COMMAND, ID_DEBUG_CPU_ON, 0);
+		if (!IgnoreBreakPoints)
+		{
+			int i = Debugger::CheckForBreakPoint();
+			if (i) {
+				DoStop = TRUE;
+
+				// if debugger window is active tell it to highlight the first matching break
+				// as is matches by address only
+				if (Debugger::CPUWnd) {
+					SendMessage(Debugger::CPUWnd, WM_COMMAND, ID_BREAK_MARK_BREAKPOINT, 0);
+				}
+				else {
+					SendMessage(hMainWnd, WM_COMMAND, ID_DEBUG_CPU_ON, 0);
+				}
+
+				if (i == 2)
+					EI.DbgOut(_T("Info: Debug breakpoint reached at PC = $%X"), CPU::PC);
 			}
-			
-			if (i == 2)
-				EI.DbgOut(_T("Info: Debug breakpoint reached at PC = $%X"), CPU::PC);
 		}
 
 		if (Debugger::Enabled)
